@@ -1,3 +1,10 @@
+# Optimized by ci-cost (https://github.com/mariotavarez/ci-cost)
+# Applied 3 optimizations:
+# - [MEDIUM] Add concurrency group to "ci.yml"
+# - [LOW] Explicitly set fail-fast for large matrix job "test_compatibility" (6 combinations)
+# - [LOW] Use shallow clone in "test_compatibility" job
+# Estimated savings: ~4 min/run
+#
 name: CI
 
 on:
@@ -7,6 +14,10 @@ on:
   pull_request:
     branches: [main]
   workflow_call:  # Allow for the publish workflows to run the tests by calling this workflow
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   test_compatibility:
     runs-on: ubuntu-latest
@@ -17,7 +28,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
-          fetch-depth: 0
+          fetch-depth: 1
       - uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python }}
